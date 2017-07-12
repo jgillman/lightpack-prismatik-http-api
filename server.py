@@ -13,7 +13,6 @@ class myHandler( BaseHTTPRequestHandler ):
 
         if self.path == '/lightpack':
             sendReply = True
-            response = "{ 'power': '" + pack.getStatus() + "', 'profile': '" + pack.getProfile() + "' }"
 
         if self.path == '/lightpack/on':
             sendReply = True
@@ -31,12 +30,15 @@ class myHandler( BaseHTTPRequestHandler ):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            if response != '':
-                self.wfile.write( response )
+            self.sendPackStatusResponse()
         else:
             self.send_response(404)
 
         return
+
+    def sendPackStatusResponse(self):
+        response = "{ 'power': '" + pack.getStatus() + "', 'profile': '" + pack.getProfile() + "' }"
+        self.wfile.write( response )
 
 
 
