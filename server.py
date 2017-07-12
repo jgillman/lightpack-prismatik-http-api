@@ -11,6 +11,10 @@ class myHandler( BaseHTTPRequestHandler ):
         sendReply = False
         response = ''
 
+        if self.path == '/lightpack':
+            sendReply = True
+            response = "{ 'power': '" + pack.getStatus() + "', 'profile': '" + pack.getProfile() + "' }"
+
         if self.path == '/lightpack/on':
             sendReply = True
             pack.on()
@@ -19,9 +23,9 @@ class myHandler( BaseHTTPRequestHandler ):
             sendReply = True
             pack.off()
 
-        if self.path == '/lightpack':
-            sendReply = True
-            response = "{ 'power': '" + pack.getStatus() + "', 'profile': '" + pack.getProfile() + "' }"
+        if self.path.startswith( '/lightpack/profile/' ):
+            if pack.setProfile( self.path.split('/')[-1] ):
+                sendReply = True
 
         if sendReply == True:
             self.send_response(200)
@@ -29,8 +33,7 @@ class myHandler( BaseHTTPRequestHandler ):
             self.end_headers()
             if response != '':
                 self.wfile.write( response )
-
-        if sendReply == False:
+        else:
             self.send_response(404)
 
         return
@@ -89,6 +92,17 @@ class myPack:
 
     def getProfile(self):
         return self.lp.getProfile()
+
+    def setProfile(self, profile):
+        self.lp.lock()
+        try:
+            self.lp.setProfile( profile )
+        except lightpack.CommandFailedError as e:
+            print repr(e)
+            print "Profile '%s' not found." % profile
+            return False
+        self.lp.unlock()
+        return True
 
 
 pack = myPack()
