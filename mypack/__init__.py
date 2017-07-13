@@ -7,6 +7,8 @@ class myPack:
         # Configuration
         # host = 'localhost' # (default)
         # port = 3636 # (default)
+        # api_key = '{YOUR-API-KEY-IF-USED}' # not used by default
+
         led_map = [ # Optional aliases for the LEDs in order
             'bottom-right',
             'right-bottom',
@@ -19,7 +21,6 @@ class myPack:
             'left-bottom',
             'bottom-left',
         ]
-        api_key = '{e5ecc13c-45f3-4652-a0fb-b03eb07b894e}'
         self.lp = lightpack.Lightpack( led_map=led_map, api_key=api_key )
 
     def connect(self):
