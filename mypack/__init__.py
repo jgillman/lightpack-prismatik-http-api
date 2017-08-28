@@ -1,5 +1,6 @@
 import lightpack
 import sys
+import time
 
 class myPack:
 
@@ -21,15 +22,31 @@ class myPack:
             'left-bottom',
             'bottom-left',
         ]
+
         self.lp = lightpack.Lightpack( led_map=led_map, api_key=api_key )
+
+        self.retry_counter = 0
+        self.retry_limit = 120
+        self.retry_interval = 5
 
     def connect(self):
         try:
             self.lp.connect()
             print 'Connected to Lightpack'
         except lightpack.CannotConnectError as e:
-            print repr(e)
-            sys.exit(1)
+            if self.retry_counter < self.retry_limit:
+                self.retry_connect()
+            else:
+                print 'Retry limit reached. Is Prismatik started with the API running?'
+                print repr(e)
+                sys.exit(1)
+
+    def retry_connect(self):
+        self.retry_counter += 1
+        print "Lightpack unavailable, trying again in %s seconds..." % ( self.retry_interval )
+        time.sleep( self.retry_interval )
+        self.connect()
+
 
     def disconnect(self):
         self.lp.disconnect()
